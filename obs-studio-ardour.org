@@ -1,0 +1,226 @@
+#+STARTUP: content inlineimages
+* obs studio and ardour
+** freebsd
+*** mac_priority
+
+Add mac_priority to /etc/rc.conf
+
+#+begin_src sh
+sudo sysrc kld_list+="mac_priority"
+#+end_src
+
+load the mac_priority kernel module
+
+#+begin_src sh
+sudo kldload mac_priority
+#+end_src
+
+Then add yourself to realtime group.
+replace username with your username
+
+#+begin_src sh
+sudo pw groupmod realtime -m username
+#+end_src
+
+*** sysctl.conf
+
+#+begin_src sh
+sudo vi /etc/sysctl.conf
+#+end_src
+
+#+begin_src conf
+# default audio output - headphones
+hw.snd.default_unit=1
+# use new audio devices automatically
+hw.snd.default_auto=1
+# dont autoreset vol to default
+hw.snd.vpc_autoreset=0
+# audio tweaks
+hw.snd.latency=0
+kern.timecounter.alloweddeviation=0
+hw.usb.uaudio.buffer_ms=2
+#+end_src
+
+*** jack install
+
+#+begin_src sh
+sudo pkg install audio/jack
+#+end_src
+
+#+begin_src sh
+sudo vi /etc/rc.conf
+#+end_src
+
+#+begin_src conf
+# sndiod audio
+sndiod_enable="YES"
+jackd_enable="NO"
+jackd_user="username"
+jackd_rtprio="YES"
+#+end_src
+
+*** freebsd mixer
+
+use the freebsd mixer to set the mic level
+
+#+begin_src sh
+mixer -f /dev/mixer3 mic.volume=100:100
+#+end_src
+
+** ardour install
+
+#+begin_src sh
+sudo pkg install ardour
+#+end_src
+
+*** harvid
+
+#+begin_src sh
+sudo pkg install harvid
+#+end_src
+
+*** xjadeo
+
+[[https://xjadeo.sourceforge.net/main.html]]
+
+[[https://sourceforge.net/projects/xjadeo/]]
+
+#+begin_src sh
+doas pkg install xcb
+#+end_src
+
+#+begin_src sh
+./configure
+make
+sudo make install
+#+end_src
+
+** jack
+
+#+begin_src sh
+jackd -R -d oss -r 48000 -C /dev/dsp3 -P /dev/dsp1
+#+end_src
+
+#+begin_example
+-R realtime audio
+-d audio backend oss
+-r rate 48000
+-C capture device
+-P playback device
+#+end_example
+
+** ardour record and monitor
+*** routing grid
+#+ATTR_ORG: :width 80%
+[[file:./images/ardour-record-monitor/20241111_15h02m45s_grim.png]]
+
+*** hardware
+#+ATTR_ORG: :width 80%
+[[file:./images/ardour-record-monitor/20241111_15h03m48s_grim.png]]
+
+*** monitor input
+#+ATTR_ORG: :width 80%
+[[file:./images/ardour-record-monitor/20241111_15h04m01s_grim.png]]
+
+** obs studio
+*** obs studio install
+
+#+begin_src sh
+sudo pkg install obs-studio
+#+end_src
+
+*** pulseaudio
+
+to select the monitoring device you have to start pulseaudio
+
+#+begin_src sh
+pulseaudio --start --daemonize 2>/dev/null
+#+end_src
+
+*** jack input 
+#+ATTR_ORG: :width 80%
+[[file:./images/ardour-obs/20241112_20h17m25s_grim.png]]
+
+*** jack properties
+#+ATTR_ORG: :width 80%
+[[file:./images/ardour-obs/20241112_20h17m57s_grim.png]]
+
+** ardour obs studio
+*** routing grid
+#+ATTR_ORG: :width 80%
+[[file:./images/ardour-obs/20241111_15h06m15s_grim.png]]
+
+*** hardware
+#+ATTR_ORG: :width 80%
+[[file:./images/ardour-obs/20241112_20h14m53s_grim.png]]
+
+*** external
+#+ATTR_ORG: :width 80%
+[[file:./images/ardour-obs/20241111_15h06m31s_grim.png]]
+
+*** external connect obs
+#+ATTR_ORG: :width 80%
+[[file:./images/ardour-obs/20241111_15h06m38s_grim.png]]
+
+*** monitor output
+#+ATTR_ORG: :width 80%
+[[file:./images/ardour-obs/20241111_15h06m59s_grim.png]]
+
+** plugins
+*** Invada-studio-plugins-lv2
+
+[[https://github.com/falkTX/invada-studio-plugins-lv2]]
+
+#+begin_src sh
+sudo pkg install Invada-studio-plugins-lv2
+#+end_src
+
+*** x42-plugins-lv2
+
+[[https://x42-plugins.com/x42/x42-eq]]
+
+#+begin_src sh
+sudo pkg install x42-plugins-lv2
+#+end_src
+
+*** Lsp-plugins-lv2
+
+[[https://lsp-plug.in/]]
+
+#+begin_src sh
+sudo pkg install lsp-plugins-lv2
+#+end_src
+
+*** noise-suppression-for-voice
+
+[[https://github.com/werman/noise-suppression-for-voice]]
+
+#+begin_src sh
+sudo pkg install noise-suppression-for-voice-lv2
+#+end_src
+
+*** rnnoise
+
+[[https://github.com/xiph/rnnoise]]
+
+#+begin_src sh
+sudo pkg install rnnoise
+#+end_src
+
+*** rnnoise-nu
+
+[[https://github.com/GregorR/rnnoise-nu]]
+
+#+begin_src sh
+sudo pkg install rnnoise-nu
+#+end_src
+
+** plugin order
+
+noise reduction
+noise gate
+16 band eq
+multiband compressor
+compressor
+limiter
+
