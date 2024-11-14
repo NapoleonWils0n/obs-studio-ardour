@@ -1,5 +1,8 @@
 #+STARTUP: content inlineimages
 * obs studio and ardour
+
+[[https://www.youtube.com/watch?v=1QQKLBb2svs][OBS Studio record your mic with Ardour and linux studio plugins]]
+
 ** freebsd
 *** mac_priority
 
